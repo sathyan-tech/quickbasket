@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -19,27 +20,28 @@
   }
   .emoji-pick:hover, .emoji-pick.selected { background:var(--surface2); border-color:var(--accent); }
 
-  .custom-tag { border-color: rgba(0,229,160,0.4) !important; }
+.custom-tag { border-color: rgba(0,229,160,0.4) !important; }
 
-  /* ——— GPS info box ——— */
-  #gpsInfo {
-    font-size:0.78rem; color:var(--muted); min-height:1.4rem;
-    margin-top:0.5rem; line-height:1.5;
-    padding:0.4rem 0.6rem; border-radius:6px;
-    background:rgba(255,255,255,0.03);
-  }
+/* ——— GPS info box ——— */
+#gpsInfo {
+font-size:0.78rem; color:var(–muted); min-height:1.4rem;
+margin-top:0.5rem; line-height:1.5;
+padding:0.4rem 0.6rem; border-radius:6px;
+background:rgba(255,255,255,0.03);
+}
 
-  /* ——— Add custom btn in sidebar ——— */
-  .add-custom-btn {
-    width:100%; padding:0.6rem; border-radius:10px;
-    border:1px dashed rgba(0,229,160,0.4);
-    background:rgba(0,229,160,0.05);
-    color:var(--accent); font-size:0.82rem; font-weight:600;
-    cursor:pointer; font-family:'DM Sans',sans-serif;
-    transition:all 0.15s; margin-top:0.2rem;
-  }
-  .add-custom-btn:hover { background:rgba(0,229,160,0.1); border-color:var(--accent); }
+/* ——— Add custom btn in sidebar ——— */
+.add-custom-btn {
+width:100%; padding:0.6rem; border-radius:10px;
+border:1px dashed rgba(0,229,160,0.4);
+background:rgba(0,229,160,0.05);
+color:var(–accent); font-size:0.82rem; font-weight:600;
+cursor:pointer; font-family:‘DM Sans’,sans-serif;
+transition:all 0.15s; margin-top:0.2rem;
+}
+.add-custom-btn:hover { background:rgba(0,229,160,0.1); border-color:var(–accent); }
 </style>
+
 </head>
 <body>
 
@@ -48,131 +50,140 @@
 <!-- ═══════════════════════════════════════════════
      LOCATION MODAL  (GPS + city picker)
 ═══════════════════════════════════════════════ -->
+
 <div class="modal-overlay hidden" id="locationModal">
   <div class="modal" style="max-width:540px">
     <h2>📍 Set Delivery Location</h2>
     <p>We use your location to show relevant apps and estimate delivery fees.</p>
 
-    <!-- GPS Button -->
-    <button id="gpsBtn" onclick="detectLocation()" style="
-      width:100%; padding:0.8rem 1rem; border-radius:11px; margin-bottom:0;
-      background:linear-gradient(135deg,rgba(0,229,160,0.12),rgba(124,58,237,0.12));
-      border:1.5px solid var(--accent); color:var(--accent);
-      font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem;
-      cursor:pointer; transition:all 0.2s; letter-spacing:0.02em;
-      display:flex; align-items:center; justify-content:center; gap:0.6rem;">
-      📍 Use My Current Location (GPS)
-    </button>
+```
+<!-- GPS Button -->
+<button id="gpsBtn" onclick="detectLocation()" style="
+  width:100%; padding:0.8rem 1rem; border-radius:11px; margin-bottom:0;
+  background:linear-gradient(135deg,rgba(0,229,160,0.12),rgba(124,58,237,0.12));
+  border:1.5px solid var(--accent); color:var(--accent);
+  font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem;
+  cursor:pointer; transition:all 0.2s; letter-spacing:0.02em;
+  display:flex; align-items:center; justify-content:center; gap:0.6rem;">
+  📍 Use My Current Location (GPS)
+</button>
 
-    <!-- GPS status / debug info -->
-    <div id="gpsInfo"></div>
+<!-- GPS status / debug info -->
+<div id="gpsInfo"></div>
 
-    <!-- Troubleshoot hint -->
-    <details style="margin:0.6rem 0 0.8rem;font-size:0.75rem;color:var(--muted)">
-      <summary style="cursor:pointer;color:var(--muted)">GPS not working? Click to troubleshoot</summary>
-      <div style="margin-top:0.5rem;line-height:1.7;padding:0.5rem 0">
-        <strong>On iPhone/Safari:</strong> Settings → Safari → Location → Allow<br>
-        <strong>On Android/Chrome:</strong> Tap 🔒 in address bar → Permissions → Location → Allow<br>
-        <strong>On Desktop Chrome:</strong> Click 🔒 lock → Site settings → Location → Allow<br>
-        <strong>Note:</strong> GPS requires HTTPS — it works on GitHub Pages automatically.
-      </div>
-    </details>
+<!-- Troubleshoot hint -->
+<details style="margin:0.6rem 0 0.8rem;font-size:0.75rem;color:var(--muted)">
+  <summary style="cursor:pointer;color:var(--muted)">GPS not working? Click to troubleshoot</summary>
+  <div style="margin-top:0.5rem;line-height:1.7;padding:0.5rem 0">
+    <strong>On iPhone/Safari:</strong> Settings → Safari → Location → Allow<br>
+    <strong>On Android/Chrome:</strong> Tap 🔒 in address bar → Permissions → Location → Allow<br>
+    <strong>On Desktop Chrome:</strong> Click 🔒 lock → Site settings → Location → Allow<br>
+    <strong>Note:</strong> GPS requires HTTPS — it works on GitHub Pages automatically.
+  </div>
+</details>
 
-    <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem">
-      <div style="flex:1;height:1px;background:var(--border)"></div>
-      <span style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">OR TYPE / SELECT A CITY</span>
-      <div style="flex:1;height:1px;background:var(--border)"></div>
-    </div>
+<div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem">
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+  <span style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">OR TYPE / SELECT A CITY</span>
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+</div>
 
-    <input type="text" id="locationInput" placeholder="Type your area, locality, or city…"
-      onkeydown="if(event.key==='Enter') confirmLocation()" />
+<input type="text" id="locationInput" placeholder="Type your area, locality, or city…"
+  onkeydown="if(event.key==='Enter') confirmLocation()" />
 
-    <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin:0.6rem 0 0.4rem">Popular Cities</div>
-    <div class="modal-cities" id="citiesGrid">
-      <div class="modal-city" onclick="selectCity('Mumbai')">🏙️ Mumbai</div>
-      <div class="modal-city" onclick="selectCity('Delhi')">🏛️ Delhi</div>
-      <div class="modal-city" onclick="selectCity('Bangalore')">🌿 Bangalore</div>
-      <div class="modal-city" onclick="selectCity('Hyderabad')">💎 Hyderabad</div>
-      <div class="modal-city" onclick="selectCity('Chennai')">🌊 Chennai</div>
-      <div class="modal-city" onclick="selectCity('Pune')">🏔️ Pune</div>
-      <div class="modal-city" onclick="selectCity('Kolkata')">🌸 Kolkata</div>
-      <div class="modal-city" onclick="selectCity('Ahmedabad')">🏺 Ahmedabad</div>
-      <div class="modal-city" onclick="selectCity('Surat')">💫 Surat</div>
-      <div class="modal-city" onclick="selectCity('Jaipur')">🏯 Jaipur</div>
-      <div class="modal-city" onclick="selectCity('Lucknow')">🕌 Lucknow</div>
-      <div class="modal-city" onclick="selectCity('Kochi')">⛵ Kochi</div>
-      <div class="modal-city" onclick="selectCity('Chandigarh')">🌲 Chandigarh</div>
-      <div class="modal-city" onclick="selectCity('Indore')">🎪 Indore</div>
-      <div class="modal-city" onclick="selectCity('Nagpur')">🍊 Nagpur</div>
-      <div class="modal-city" onclick="selectCity('Coimbatore')">🏭 Coimbatore</div>
-    </div>
+<div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin:0.6rem 0 0.4rem">Popular Cities</div>
+<div class="modal-cities" id="citiesGrid">
+  <div class="modal-city" onclick="selectCity('Mumbai')">🏙️ Mumbai</div>
+  <div class="modal-city" onclick="selectCity('Delhi')">🏛️ Delhi</div>
+  <div class="modal-city" onclick="selectCity('Bangalore')">🌿 Bangalore</div>
+  <div class="modal-city" onclick="selectCity('Hyderabad')">💎 Hyderabad</div>
+  <div class="modal-city" onclick="selectCity('Chennai')">🌊 Chennai</div>
+  <div class="modal-city" onclick="selectCity('Pune')">🏔️ Pune</div>
+  <div class="modal-city" onclick="selectCity('Kolkata')">🌸 Kolkata</div>
+  <div class="modal-city" onclick="selectCity('Ahmedabad')">🏺 Ahmedabad</div>
+  <div class="modal-city" onclick="selectCity('Surat')">💫 Surat</div>
+  <div class="modal-city" onclick="selectCity('Jaipur')">🏯 Jaipur</div>
+  <div class="modal-city" onclick="selectCity('Lucknow')">🕌 Lucknow</div>
+  <div class="modal-city" onclick="selectCity('Kochi')">⛵ Kochi</div>
+  <div class="modal-city" onclick="selectCity('Chandigarh')">🌲 Chandigarh</div>
+  <div class="modal-city" onclick="selectCity('Indore')">🎪 Indore</div>
+  <div class="modal-city" onclick="selectCity('Nagpur')">🍊 Nagpur</div>
+  <div class="modal-city" onclick="selectCity('Coimbatore')">🏭 Coimbatore</div>
+</div>
 
-    <div class="modal-btns" style="margin-top:1rem">
-      <button class="btn-ghost" onclick="document.getElementById('locationModal').classList.add('hidden')">Cancel</button>
-      <button class="btn-primary" onclick="confirmLocation()">Confirm Location →</button>
-    </div>
+<div class="modal-btns" style="margin-top:1rem">
+  <button class="btn-ghost" onclick="document.getElementById('locationModal').classList.add('hidden')">Cancel</button>
+  <button class="btn-primary" onclick="confirmLocation()">Confirm Location →</button>
+</div>
+```
+
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════
      CUSTOM PRODUCT MODAL
 ═══════════════════════════════════════════════ -->
+
 <div class="modal-overlay hidden" id="customProductModal">
   <div class="modal" style="max-width:420px">
     <h2>✏️ Add Custom Product</h2>
     <p>Type any product or brand not in our list. Enter the price you see in any one app — we'll calculate the difference per app automatically.</p>
 
-    <!-- Emoji picker -->
-    <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.4rem">Pick an icon</div>
-    <div class="emoji-row" id="emojiRow">
-      <span class="emoji-pick" onclick="pickEmoji(this,'📦')">📦</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🛒')">🛒</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🍽️')">🍽️</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🧴')">🧴</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🍫')">🍫</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🥤')">🥤</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🍳')">🍳</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🧹')">🧹</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'💊')">💊</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🧸')">🧸</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🐾')">🐾</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🌿')">🌿</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🍎')">🍎</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🥛')">🥛</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🧀')">🧀</span>
-      <span class="emoji-pick" onclick="pickEmoji(this,'🌶️')">🌶️</span>
-    </div>
-    <input type="hidden" id="cp_emoji" value="📦" />
+```
+<!-- Emoji picker -->
+<div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.4rem">Pick an icon</div>
+<div class="emoji-row" id="emojiRow">
+  <span class="emoji-pick" onclick="pickEmoji(this,'📦')">📦</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🛒')">🛒</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🍽️')">🍽️</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🧴')">🧴</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🍫')">🍫</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🥤')">🥤</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🍳')">🍳</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🧹')">🧹</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'💊')">💊</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🧸')">🧸</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🐾')">🐾</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🌿')">🌿</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🍎')">🍎</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🥛')">🥛</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🧀')">🧀</span>
+  <span class="emoji-pick" onclick="pickEmoji(this,'🌶️')">🌶️</span>
+</div>
+<input type="hidden" id="cp_emoji" value="📦" />
 
-    <input type="text" id="cp_name"
-      placeholder="Product name (e.g. Vim Bar 200g, Complan 500g)"
-      style="margin-bottom:0.6rem"
-      onkeydown="if(event.key==='Enter') document.getElementById('cp_price').focus()" />
+<input type="text" id="cp_name"
+  placeholder="Product name (e.g. Vim Bar 200g, Complan 500g)"
+  style="margin-bottom:0.6rem"
+  onkeydown="if(event.key==='Enter') document.getElementById('cp_price').focus()" />
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.8rem">
-      <div>
-        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.3rem">Your price (₹)</div>
-        <input type="number" id="cp_price" placeholder="e.g. 85" min="1"
-          onkeydown="if(event.key==='Enter') addCustomProduct()" />
-      </div>
-      <div>
-        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.3rem">Unit / size</div>
-        <input type="text" id="cp_unit" placeholder="e.g. 500g, 1L, 6 pcs" />
-      </div>
-    </div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.8rem">
+  <div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.3rem">Your price (₹)</div>
+    <input type="number" id="cp_price" placeholder="e.g. 85" min="1"
+      onkeydown="if(event.key==='Enter') addCustomProduct()" />
+  </div>
+  <div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.3rem">Unit / size</div>
+    <input type="text" id="cp_unit" placeholder="e.g. 500g, 1L, 6 pcs" />
+  </div>
+</div>
 
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem;font-size:0.75rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">
-      💡 <strong>How pricing works:</strong> We apply each app's typical price difference (±2–5%) to your entered price to estimate costs across all apps.
-    </div>
+<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem;font-size:0.75rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">
+  💡 <strong>How pricing works:</strong> We apply each app's typical price difference (±2–5%) to your entered price to estimate costs across all apps.
+</div>
 
-    <div class="modal-btns">
-      <button class="btn-ghost" onclick="document.getElementById('customProductModal').classList.add('hidden')">Cancel</button>
-      <button class="btn-primary" onclick="addCustomProduct()">Add to Basket ✓</button>
-    </div>
+<div class="modal-btns">
+  <button class="btn-ghost" onclick="document.getElementById('customProductModal').classList.add('hidden')">Cancel</button>
+  <button class="btn-primary" onclick="addCustomProduct()">Add to Basket ✓</button>
+</div>
+```
+
   </div>
 </div>
 
 <!-- SAVE BASKET MODAL -->
+
 <div class="modal-overlay hidden" id="saveBasketModal">
   <div class="modal" style="max-width:400px">
     <h2>💾 Save Basket</h2>
@@ -186,6 +197,7 @@
 </div>
 
 <!-- REPORT PRICE MODAL -->
+
 <div class="modal-overlay hidden" id="reportModal">
   <div class="modal" style="max-width:420px">
     <h2>🚩 Report a Price</h2>
@@ -210,17 +222,20 @@
 </div>
 
 <!-- LOADING -->
+
 <div class="loading-overlay hidden" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text" id="loadingText">Comparing prices across apps…</div>
 </div>
 
 <!-- TOAST -->
+
 <div class="toast hidden" id="toast"></div>
 
 <!-- ═══════════════════════════════════════════════
      HEADER  (3 rows on mobile, 1 row on desktop)
 ═══════════════════════════════════════════════ -->
+
 <header>
   <!-- Row 1: Logo only -->
   <div class="header-row1">
@@ -257,6 +272,7 @@
 </header>
 
 <!-- SAVED BASKETS PANEL -->
+
 <div class="side-panel hidden" id="savedPanel">
   <div class="side-panel-header">
     <span style="font-family:'Syne',sans-serif;font-weight:700">📂 Saved Baskets</span>
@@ -270,97 +286,105 @@
 <!-- ═══════════════════════════════════════════════
      MAIN LAYOUT
 ═══════════════════════════════════════════════ -->
+
 <div class="main">
 
   <!-- SIDEBAR -->
+
   <aside class="sidebar">
 
-    <!-- Search -->
-    <div>
-      <div class="section-label">Search Any Product</div>
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput"
-          oninput="filterProducts()"
-          placeholder="milk, paneer, Amul, dahi, chips…" autocomplete="off" />
-      </div>
-      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.35rem">
-        💡 Hindi names too: dahi, anda, aloo, chai, sabun…
-      </div>
-    </div>
+```
+<!-- Search -->
+<div>
+  <div class="section-label">Search Any Product</div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput"
+      oninput="filterProducts()"
+      placeholder="milk, paneer, Amul, dahi, chips…" autocomplete="off" />
+  </div>
+  <div style="font-size:0.68rem;color:var(--muted);margin-top:0.35rem">
+    💡 Hindi names too: dahi, anda, aloo, chai, sabun…
+  </div>
+</div>
 
-    <!-- Add Custom Product -->
-    <div>
-      <div class="section-label">Can't find your product?</div>
-      <button class="add-custom-btn" onclick="openCustomProductModal()">
-        ✏️ Add Any Custom Product / Brand
-      </button>
-      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.3rem">
-        Add Haldiram's, Amul Taaza, Glucon-D, medicines, anything — with your own price
-      </div>
-    </div>
+<!-- Add Custom Product -->
+<div>
+  <div class="section-label">Can't find your product?</div>
+  <button class="add-custom-btn" onclick="openCustomProductModal()">
+    ✏️ Add Any Custom Product / Brand
+  </button>
+  <div style="font-size:0.68rem;color:var(--muted);margin-top:0.3rem">
+    Add Haldiram's, Amul Taaza, Glucon-D, medicines, anything — with your own price
+  </div>
+</div>
 
-    <!-- Categories -->
-    <div>
-      <div class="section-label">Category</div>
-      <div class="cat-pills" id="catPills">
-        <div class="cat-pill active" onclick="filterCat('all',this)">All</div>
-        <div class="cat-pill" onclick="filterCat('dairy',this)">🥛 Dairy</div>
-        <div class="cat-pill" onclick="filterCat('fruits',this)">🍎 Fruits</div>
-        <div class="cat-pill" onclick="filterCat('vegetables',this)">🥦 Veggies</div>
-        <div class="cat-pill" onclick="filterCat('grains',this)">🌾 Grains</div>
-        <div class="cat-pill" onclick="filterCat('snacks',this)">🍿 Snacks</div>
-        <div class="cat-pill" onclick="filterCat('beverages',this)">🧃 Beverages</div>
-        <div class="cat-pill" onclick="filterCat('cooking',this)">🧑‍🍳 Cooking</div>
-        <div class="cat-pill" onclick="filterCat('meat',this)">🍗 Meat</div>
-        <div class="cat-pill" onclick="filterCat('frozen',this)">🧊 Frozen</div>
-        <div class="cat-pill" onclick="filterCat('personal',this)">🧴 Personal</div>
-        <div class="cat-pill" onclick="filterCat('household',this)">🧹 Household</div>
-        <div class="cat-pill" onclick="filterCat('baby',this)">👶 Baby</div>
-        <div class="cat-pill" onclick="filterCat('petcare',this)">🐾 Pets</div>
-      </div>
-    </div>
+<!-- Categories -->
+<div>
+  <div class="section-label">Category</div>
+  <div class="cat-pills" id="catPills">
+    <div class="cat-pill active" onclick="filterCat('all',this)">All</div>
+    <div class="cat-pill" onclick="filterCat('dairy',this)">🥛 Dairy</div>
+    <div class="cat-pill" onclick="filterCat('fruits',this)">🍎 Fruits</div>
+    <div class="cat-pill" onclick="filterCat('vegetables',this)">🥦 Veggies</div>
+    <div class="cat-pill" onclick="filterCat('grains',this)">🌾 Grains</div>
+    <div class="cat-pill" onclick="filterCat('snacks',this)">🍿 Snacks</div>
+    <div class="cat-pill" onclick="filterCat('beverages',this)">🧃 Beverages</div>
+    <div class="cat-pill" onclick="filterCat('cooking',this)">🧑‍🍳 Cooking</div>
+    <div class="cat-pill" onclick="filterCat('meat',this)">🍗 Meat</div>
+    <div class="cat-pill" onclick="filterCat('frozen',this)">🧊 Frozen</div>
+    <div class="cat-pill" onclick="filterCat('personal',this)">🧴 Personal</div>
+    <div class="cat-pill" onclick="filterCat('household',this)">🧹 Household</div>
+    <div class="cat-pill" onclick="filterCat('baby',this)">👶 Baby</div>
+    <div class="cat-pill" onclick="filterCat('petcare',this)">🐾 Pets</div>
+  </div>
+</div>
 
-    <!-- Product List -->
-    <div style="flex:1;min-height:0;overflow-y:auto">
-      <div class="section-label">Products</div>
-      <div class="product-list" id="productList"></div>
-    </div>
+<!-- Product List -->
+<div>
+  <div class="section-label">Products</div>
+  <div class="product-list" id="productList"></div>
+</div>
+```
+
   </aside>
 
   <!-- CONTENT -->
+
   <div class="content">
 
-    <!-- BASKET BAR -->
-    <div class="basket-bar">
-      <span class="basket-label">🧺 My Basket</span>
-      <div class="basket-tags" id="basketTags">
-        <span style="font-size:0.8rem;color:var(--muted)">Add items or custom products to compare</span>
-      </div>
-      <div style="display:flex;gap:0.6rem;margin-left:auto;flex-shrink:0">
-        <button class="save-btn hidden" id="saveBtn"
-          onclick="document.getElementById('saveBasketModal').classList.remove('hidden')" title="Save basket">💾</button>
-        <button class="clear-btn hidden" id="clearBtn" onclick="clearBasket()" title="Clear basket">🗑️</button>
-        <button class="compare-btn" id="compareBtn" onclick="runComparison()" disabled>Compare Prices →</button>
-      </div>
-    </div>
+```
+<!-- BASKET BAR -->
+<div class="basket-bar">
+  <span class="basket-label">🧺 My Basket</span>
+  <div class="basket-tags" id="basketTags">
+    <span style="font-size:0.8rem;color:var(--muted)">Add items or custom products to compare</span>
+  </div>
+  <div style="display:flex;gap:0.6rem;margin-left:auto;flex-shrink:0">
+    <button class="save-btn hidden" id="saveBtn"
+      onclick="document.getElementById('saveBasketModal').classList.remove('hidden')" title="Save basket">💾</button>
+    <button class="clear-btn hidden" id="clearBtn" onclick="clearBasket()" title="Clear basket">🗑️</button>
+    <button class="compare-btn" id="compareBtn" onclick="runComparison()" disabled>Compare Prices →</button>
+  </div>
+</div>
 
-    <!-- COMPARISON AREA -->
-    <div class="comparison-area" id="comparisonArea">
-      <div class="empty-state" id="emptyState">
-        <div class="big-icon">🛒</div>
-        <h3>Build your basket to compare</h3>
-        <p>Search any product, browse by category, or add a custom product with your own price — then tap Compare Prices.</p>
-        <button onclick="openCustomProductModal()" style="
-          margin-top:0.5rem;padding:0.6rem 1.4rem;border-radius:10px;
-          border:1px solid var(--accent);background:rgba(0,229,160,0.08);
-          color:var(--accent);font-size:0.83rem;font-weight:600;cursor:pointer;
-          font-family:'DM Sans',sans-serif">
-          ✏️ Add Custom Product
-        </button>
-      </div>
-      <div id="resultsArea" style="display:none"></div>
-    </div>
+<!-- COMPARISON AREA -->
+<div class="comparison-area" id="comparisonArea">
+  <div class="empty-state" id="emptyState">
+    <div class="big-icon">🛒</div>
+    <h3>Build your basket to compare</h3>
+    <p>Search any product, browse by category, or add a custom product with your own price — then tap Compare Prices.</p>
+    <button onclick="openCustomProductModal()" style="
+      margin-top:0.5rem;padding:0.6rem 1.4rem;border-radius:10px;
+      border:1px solid var(--accent);background:rgba(0,229,160,0.08);
+      color:var(--accent);font-size:0.83rem;font-weight:600;cursor:pointer;
+      font-family:'DM Sans',sans-serif">
+      ✏️ Add Custom Product
+    </button>
+  </div>
+  <div id="resultsArea" style="display:none"></div>
+</div>
+```
 
   </div>
 </div>
@@ -379,7 +403,10 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <!-- data.js and app.js are plain scripts, firebase loaded dynamically inside app.js -->
+
 <script src="js/data.js"></script>
+
 <script src="js/app.js"></script>
+
 </body>
 </html>

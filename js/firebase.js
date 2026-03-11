@@ -48,19 +48,18 @@ try {
   setStatus('offline'); return;
 }
 
-// Handle redirect result (called when user returns after Google sign-in)
+// Handle redirect result when user returns after Google sign-in
 FB.auth.getRedirectResult().then(function(result) {
   if (result && result.user) {
-    showToast('✅ Welcome, ' + result.user.displayName + '!', 'success');
+    showToast('✅ Welcome, ' + (result.user.displayName || 'User') + '!', 'success');
   }
 }).catch(function(e) {
-  if (e.code !== 'auth/no-auth-event') {
-    console.error('Redirect result error:', e);
-    showToast('Sign in error: ' + e.message, 'error');
+  if (e.code && e.code !== 'auth/no-auth-event') {
+    console.warn('Redirect result:', e.code);
   }
 });
 
-// Listen for auth state
+// Listen for auth state changes
 FB.auth.onAuthStateChanged(function(user) {
   FB.user = user || null;
   updateAuthUI();
@@ -98,13 +97,35 @@ btn.title = ‘Sign in to sync your baskets’;
 }
 
 window.signInWithGoogle = function() {
-if (!window.FB || !window.FB.auth) { showToast(‘Firebase not ready yet’, ‘error’); return; }
+if (!window.FB || !window.FB.auth) {
+showToast(‘Firebase not ready yet — try again in a moment’, ‘error’); return;
+}
 var provider = new firebase.auth.GoogleAuthProvider();
-// Use redirect (works on mobile) instead of popup (often blocked on mobile)
+var isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+
+if (isMobile) {
+// Mobile: use redirect (popup is blocked by iOS/Android browsers)
+showToast(‘Redirecting to Google…’, ‘’);
 FB.auth.signInWithRedirect(provider).catch(function(e) {
-console.error(‘Sign in error:’, e);
-showToast(’Sign in failed: ’ + e.message, ‘error’);
+console.error(‘Redirect sign in error:’, e);
+showToast(’Sign in failed: ’ + (e.message || e.code), ‘error’);
 });
+} else {
+// Desktop: use popup
+FB.auth.signInWithPopup(provider)
+.then(function(result) {
+showToast(’✅ Welcome, ’ + (result.user.displayName || ‘User’) + ‘!’, ‘success’);
+})
+.catch(function(e) {
+console.error(‘Popup sign in error:’, e);
+if (e.code === ‘auth/popup-blocked’) {
+// Popup was blocked, fall back to redirect
+FB.auth.signInWithRedirect(provider);
+} else {
+showToast(’Sign in failed: ’ + (e.message || e.code), ‘error’);
+}
+});
+}
 };
 
 // ── Status dot ────────────────────────────────────────────
