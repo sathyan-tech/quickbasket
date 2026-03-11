@@ -38,17 +38,17 @@ window.detectLocation = function () {
 
 async function onGPSSuccess(pos) {
   const btn = document.getElementById('gpsBtn'), info = document.getElementById('gpsInfo');
-  currentLat = pos.coords.latitude; currentLng = pos.coords.longitude;
-  info.innerHTML = `✅ GPS: ${currentLat.toFixed(5)}, ${currentLng.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m) — Reverse geocoding…`;
+  window.currentLat = pos.coords.latitude; window.currentLng = pos.coords.longitude;
+  info.innerHTML = `✅ GPS: ${window.currentLat.toFixed(5)}, ${window.currentLng.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m) — Reverse geocoding…`;
   info.style.color = 'var(--accent)';
   try {
-    const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${currentLat}&lon=${currentLng}&format=json&addressdetails=1&accept-language=en`);
+    const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${window.currentLat}&lon=${window.currentLng}&format=json&addressdetails=1&accept-language=en`);
     const data = await res.json();
     const addr = data.address || {};
     const loc  = addr.suburb || addr.neighbourhood || addr.village || '';
     const city = addr.city || addr.town || addr.county || addr.state || 'Your Location';
     const disp = loc ? `${loc}, ${city}` : city;
-    currentCity = city;
+    window.currentCity = city;
     document.getElementById('locDisplay').textContent = disp;
     document.getElementById('locationInput').value    = disp;
     document.querySelectorAll('.modal-city').forEach(el =>
@@ -56,9 +56,9 @@ async function onGPSSuccess(pos) {
     info.innerHTML = `📍 <strong>${disp}</strong> — confirmed!`;
     showToast(`📍 ${disp}`, 'success');
   } catch(e) {
-    currentCity = `${currentLat.toFixed(4)},${currentLng.toFixed(4)}`;
+    window.currentCity = `${window.currentLat.toFixed(4)},${window.currentLng.toFixed(4)}`;
     document.getElementById('locDisplay').textContent = '📍 GPS Location';
-    document.getElementById('locationInput').value    = currentCity;
+    document.getElementById('locationInput').value    = window.currentCity;
     info.innerHTML = `📍 GPS detected (city lookup failed — check internet)`;
     showToast('📍 GPS location detected', 'success');
   }
@@ -78,7 +78,7 @@ function onGPSError(err) {
 }
 
 window.selectCity = function (city) {
-  currentCity = city;
+  window.currentCity = city;
   document.getElementById('locDisplay').textContent = city;
   document.getElementById('locationInput').value    = city;
   document.querySelectorAll('.modal-city').forEach(el =>
@@ -88,7 +88,7 @@ window.selectCity = function (city) {
 };
 window.confirmLocation = function () {
   const val = document.getElementById('locationInput').value.trim();
-  if (val) { currentCity = val; document.getElementById('locDisplay').textContent = val; }
+  if (val) { window.currentCity = val; document.getElementById('locDisplay').textContent = val; }
   document.getElementById('locationModal').classList.add('hidden'); clearResults();
 };
 
@@ -107,13 +107,13 @@ window.addCustomProduct = function () {
   if (!name)         { showToast('Enter a product name', 'error'); return; }
   if (!price || price <= 0) { showToast('Enter a valid price', 'error'); return; }
   const id = 'custom_' + Date.now();
-  customItems[id] = { name, brand: 'Custom', emoji, unit, basePrice: price, tags: [name.toLowerCase()] };
-  basket[id] = 1;
+  window.customItems[id] = { name, brand: 'Custom', emoji, unit, basePrice: price, tags: [name.toLowerCase()] };
+  window.basket[id] = 1;
   ['cp_name','cp_price','cp_unit'].forEach(f => document.getElementById(f).value = '');
   document.getElementById('customProductModal').classList.add('hidden');
   updateBasketUI(); showToast(`✅ "${name}" added!`, 'success');
 };
-window.getProduct = id => PRODUCTS.find(x => x.id === id) || customItems[id] || null;
+window.getProduct = id => PRODUCTS.find(x => x.id === id) || window.customItems[id] || null;
 
 // ================================================================
 //  SEARCH — searches name + brand + tags, supports Hindi aliases
@@ -233,7 +233,7 @@ window.renderProducts = function () {
 
       for (const p of items) {
         const isCheapest = p.id === cheapest.id;
-        const qty = basket[p.id] || 0;
+        const qty = window.basket[p.id] || 0;
         const inB = qty > 0;
         html += `
         <div class="group-item${inB ? ' in-basket' : ''}${isCheapest ? ' cheapest-item' : ''}">
@@ -264,7 +264,7 @@ window.renderProducts = function () {
 };
 
 function renderProductCard(p) {
-  const qty = basket[p.id] || 0;
+  const qty = window.basket[p.id] || 0;
   const inB = qty > 0;
   return `
   <div class="product-item${inB ? ' in-basket' : ''}">
@@ -285,36 +285,37 @@ function renderProductCard(p) {
   </div>`;
 }
 
-// ——— per-unit price label (normalises to per 100g / per 100ml / per pc) ———
+// ——— per-unit price label (normalises to per 100g / per 100ml) ———
 function perUnitLabel(p) {
-  const u = p.unit.toLowerCase();
+  const u = (p.unit || '').toLowerCase();
   const match = u.match(/([\d.]+)\s*(kg|g|ml|l|ltr)/);
-  if (!match) return p.basePrice;
+  if (!match) return `₹${p.basePrice}`;
   let qty = parseFloat(match[1]);
   const unit = match[2];
-  // normalise to grams / ml
   if (unit === 'kg' || unit === 'l' || unit === 'ltr') qty *= 1000;
+  if (qty <= 0) return `₹${p.basePrice}`;
   const per100 = Math.round(p.basePrice / qty * 100);
-  return `₹${per100}/100${unit.startsWith('l') || unit === 'ml' ? 'ml' : 'g'}`;
+  const unitLabel = (unit === 'l' || unit === 'ltr' || unit === 'ml') ? 'ml' : 'g';
+  return `₹${per100}/100${unitLabel}`;
 }
 
 // ================================================================
 //  BASKET
 // ================================================================
-window.addToBasket = function (id) { basket[id] = 1; updateBasketUI(); renderProducts(); };
+window.addToBasket = function (id) { window.basket[id] = 1; updateBasketUI(); renderProducts(); };
 window.changeQty   = function (id, delta) {
-  basket[id] = (basket[id] || 0) + delta;
-  if (basket[id] <= 0) { delete basket[id]; if (customItems[id]) delete customItems[id]; }
+  window.basket[id] = (window.basket[id] || 0) + delta;
+  if (window.basket[id] <= 0) { delete window.basket[id]; if (window.customItems[id]) delete window.customItems[id]; }
   updateBasketUI(); renderProducts();
 };
 window.removeFromBasket = function (id) {
-  delete basket[id]; if (customItems[id]) delete customItems[id];
+  delete window.basket[id]; if (window.customItems[id]) delete window.customItems[id];
   updateBasketUI(); renderProducts(); clearResults();
 };
 window.clearBasket = function () {
-  if (!Object.keys(basket).length) return;
+  if (!Object.keys(window.basket).length) return;
   if (!confirm('Clear all items?')) return;
-  basket = {}; customItems = {};
+  window.basket = {}; window.customItems = {};
   updateBasketUI(); renderProducts(); clearResults();
 };
 
@@ -323,17 +324,17 @@ window.updateBasketUI = function () {
   const btn     = document.getElementById('compareBtn');
   const saveBtn = document.getElementById('saveBtn');
   const clrBtn  = document.getElementById('clearBtn');
-  const items   = Object.keys(basket);
+  const items   = Object.keys(window.basket);
   if (!items.length) {
     tags.innerHTML = `<span style="font-size:0.8rem;color:var(--muted)">Add items or custom products to compare</span>`;
     btn.disabled = true; saveBtn.classList.add('hidden'); clrBtn.classList.add('hidden'); return;
   }
   tags.innerHTML = items.map(id => {
     const p = getProduct(id); if (!p) return '';
-    return `<div class="basket-tag${customItems[id]?' custom-tag':''}">
+    return `<div class="basket-tag${window.customItems[id]?' custom-tag':''}">
       <span class="tag-emoji">${p.emoji}</span>
-      <span>${p.brand ? p.brand+' ' : ''}${p.name} ${p.unit} ×${basket[id]}</span>
-      ${customItems[id] ? '<span style="font-size:0.65rem;color:var(--accent)">✏️</span>' : ''}
+      <span>${p.brand ? p.brand+' ' : ''}${p.name} ${p.unit} ×${window.basket[id]}</span>
+      ${window.customItems[id] ? '<span style="font-size:0.65rem;color:var(--accent)">✏️</span>' : ''}
       <span class="remove-tag" onclick="removeFromBasket('${id}')">✕</span>
     </div>`;
   }).join('');
@@ -348,7 +349,7 @@ window.openReportModal  = function () {
   const sel = document.getElementById('reportProduct');
   sel.innerHTML = '<option value="">Select Product</option>' +
     PRODUCTS.map(p => `<option value="${p.id}">${p.emoji} ${p.brand} ${p.name} (${p.unit})</option>`).join('');
-  document.getElementById('reportCity').value = currentCity;
+  document.getElementById('reportCity').value = window.currentCity;
   document.getElementById('reportModal').classList.remove('hidden');
 };
 
@@ -358,7 +359,7 @@ window.openReportModal  = function () {
 function calcAppTotal(app) {
   let subtotal = 0;
   const itemPrices = {};
-  for (const [id, qty] of Object.entries(basket)) {
+  for (const [id, qty] of Object.entries(window.basket)) {
     const p = getProduct(id); if (!p) continue;
     const mult  = app.priceMultiplier[id] ?? app.priceMultiplier.default;
     const price = Math.round(p.basePrice * mult);
@@ -393,7 +394,7 @@ function renderResults() {
   const savings  = priciest.total - cheapest.total;
 
   const itemCheapest = {};
-  for (const id of Object.keys(basket)) {
+  for (const id of Object.keys(window.basket)) {
     let best = null, bestPrice = Infinity;
     for (const r of results) {
       if ((r.itemPrices[id] ?? Infinity) < bestPrice) { bestPrice = r.itemPrices[id]; best = r.app; }
@@ -401,15 +402,15 @@ function renderResults() {
     itemCheapest[id] = { app: best, price: bestPrice };
   }
 
-  logComparison(currentCity, Object.entries(basket).map(([id,qty]) => ({ id, qty })), results.map(r => ({ appId: r.app.id, total: r.total })));
+  logComparison(window.currentCity, Object.entries(window.basket).map(([id,qty]) => ({ id, qty })), results.map(r => ({ appId: r.app.id, total: r.total })));
 
   let html = `<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--muted);margin-bottom:1rem;flex-wrap:wrap">
-    <span>📍 <strong style="color:var(--text)">${currentCity}</strong>${currentLat?` <span style="font-size:0.7rem;opacity:0.6">(GPS ${currentLat.toFixed(3)}, ${currentLng.toFixed(3)})</span>`:''}</span>
+    <span>📍 <strong style="color:var(--text)">${window.currentCity}</strong>${window.currentLat?` <span style="font-size:0.7rem;opacity:0.6">(GPS ${window.currentLat.toFixed(3)}, ${window.currentLng.toFixed(3)})</span>`:''}</span>
     <button onclick="document.getElementById('locationModal').classList.remove('hidden')"
       style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;padding:0.2rem 0.6rem;color:var(--muted);font-size:0.72rem;cursor:pointer">Change ▾</button>
   </div>`;
 
-  const customCount = Object.keys(customItems).length;
+  const customCount = Object.keys(window.customItems).length;
   if (customCount > 0)
     html += `<div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:10px;padding:0.65rem 1rem;font-size:0.78rem;color:var(--muted);margin-bottom:1rem">
       ✏️ <strong style="color:var(--accent)">${customCount} custom item${customCount>1?'s':''}</strong> included with user-entered prices</div>`;
@@ -449,7 +450,7 @@ function renderResults() {
         <div class="fee-row divider"><span>Grand Total</span><span>₹${r.total}</span></div>
       </div>
       <div class="item-list">
-        ${Object.entries(basket).map(([id,qty]) => {
+        ${Object.entries(window.basket).map(([id,qty]) => {
           const p = getProduct(id); if(!p) return '';
           const price = r.itemPrices[id]??0;
           const isBestItem = itemCheapest[id]?.app?.id === r.app.id;
@@ -460,14 +461,14 @@ function renderResults() {
         }).join('')}
       </div>
       <button class="go-btn" style="background:${r.app.color};color:${r.app.textColor}"
-        onclick="openApp('${r.app.id}','${r.app.deeplink(currentCity)}')">Order on ${r.app.name} →</button>
+        onclick="openApp('${r.app.id}','${r.app.deeplink(window.currentCity)}')">Order on ${r.app.name} →</button>
     </div>`;
   }
   html += '</div>';
 
   // ——— Smart split basket ———
   const appGroups = {};
-  for (const [id,qty] of Object.entries(basket)) {
+  for (const [id,qty] of Object.entries(window.basket)) {
     const { app, price } = itemCheapest[id] || {}; if(!app) continue;
     if (!appGroups[app.id]) appGroups[app.id] = { app, items:[] };
     appGroups[app.id].items.push({ id, qty, price });
@@ -483,7 +484,7 @@ function renderResults() {
       <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.83rem">${g.app.name}</span>
       <span style="font-size:0.73rem;color:var(--muted)">— ${g.items.length} item${g.items.length>1?'s':''}</span>
       <button class="go-btn" style="background:${g.app.color};color:${g.app.textColor};width:auto;margin:0;margin-left:auto;padding:0.28rem 0.8rem;font-size:0.73rem"
-        onclick="openApp('${appId}','${g.app.deeplink(currentCity)}')">Open →</button>
+        onclick="openApp('${appId}','${g.app.deeplink(window.currentCity)}')">Open →</button>
     </div>`;
     for (const item of g.items) {
       const p = getProduct(item.id); if(!p) continue;
@@ -495,7 +496,7 @@ function renderResults() {
       </div>`;
     }
   }
-  const smartTotal = Object.entries(basket).reduce((s,[id,qty]) => s + (itemCheapest[id]?.price||0)*qty, 0);
+  const smartTotal = Object.entries(window.basket).reduce((s,[id,qty]) => s + (itemCheapest[id]?.price||0)*qty, 0);
   html += `<div style="padding:0.9rem 1.1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:0.8rem;color:var(--muted)">Items total (before delivery)</span>
     <span style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent);font-size:1.05rem">₹${smartTotal}</span>
