@@ -43,31 +43,7 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     FIREBASE SETUP MODAL
-═══════════════════════════════════════════════ -->
-<div class="modal-overlay" id="firebaseSetupModal">
-  <div class="modal" style="max-width:520px">
-    <div style="font-size:2rem;margin-bottom:0.8rem">🔥</div>
-    <h2>Connect Firebase</h2>
-    <p style="margin-bottom:1rem">Enter your Firebase project config to enable basket saving and price reports. Or skip to use offline.</p>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;font-size:0.75rem;color:var(--muted);margin-bottom:1rem;font-family:monospace;line-height:1.7">
-      Firebase Console → Project Settings → General → Your Apps → Web App → SDK setup → Config
-    </div>
-    <div style="display:grid;gap:0.5rem;margin-bottom:1rem">
-      <input type="text" id="fb_apiKey" placeholder="apiKey" />
-      <input type="text" id="fb_authDomain" placeholder="authDomain  (project.firebaseapp.com)" />
-      <input type="text" id="fb_projectId" placeholder="projectId" />
-      <input type="text" id="fb_storageBucket" placeholder="storageBucket  (project.appspot.com)" />
-      <input type="text" id="fb_messagingSenderId" placeholder="messagingSenderId" />
-      <input type="text" id="fb_appId" placeholder="appId" />
-    </div>
-    <div style="display:flex;gap:0.8rem;justify-content:flex-end">
-      <button class="btn-ghost" onclick="skipFirebase()">Skip — Use Offline</button>
-      <button class="btn-primary" onclick="initFirebaseFromForm()">Connect Firebase</button>
-    </div>
-  </div>
-</div>
+<!-- Firebase auto-connects on load — no setup modal needed -->
 
 <!-- ═══════════════════════════════════════════════
      LOCATION MODAL  (GPS + city picker)
