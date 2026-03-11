@@ -219,30 +219,31 @@
 <div class="toast hidden" id="toast"></div>
 
 <!-- ═══════════════════════════════════════════════
-     HEADER  (two-row on mobile)
+     HEADER  (3 rows on mobile, 1 row on desktop)
 ═══════════════════════════════════════════════ -->
 <header>
-  <!-- Row 1: logo + actions -->
+  <!-- Row 1: Logo only -->
   <div class="header-row1">
     <div class="header-brand">
       <span class="logo-icon">🧺</span>
       <span class="logo">QuickBasket</span>
     </div>
-    <div class="header-actions">
-      <button class="header-btn" onclick="toggleSavedPanel()" title="Saved Baskets">
-        📂 <span class="header-btn-label">Saved</span>
-      </button>
-      <button class="header-btn" onclick="openReportModal()" title="Report a price">
-        🚩 <span class="header-btn-label">Report Price</span>
-      </button>
-      <div class="firebase-status" id="firebaseStatus">
-        <div class="status-dot offline" id="statusDot"></div>
-        <span id="statusLabel">Offline</span>
-      </div>
+  </div>
+  <!-- Row 2: Saved · Report Price · Live status -->
+  <div class="header-row2">
+    <button class="header-btn" onclick="toggleSavedPanel()" title="Saved Baskets">
+      📂 <span class="header-btn-label">Saved</span>
+    </button>
+    <button class="header-btn" onclick="openReportModal()" title="Report a price">
+      🚩 <span class="header-btn-label">Report Price</span>
+    </button>
+    <div class="firebase-status" id="firebaseStatus">
+      <div class="status-dot offline" id="statusDot"></div>
+      <span id="statusLabel">Offline</span>
     </div>
   </div>
-  <!-- Row 2: delivery location (always full-width on mobile) -->
-  <div class="header-row2">
+  <!-- Row 3: Delivery location -->
+  <div class="header-row3">
     <div class="location-bar" onclick="document.getElementById('locationModal').classList.remove('hidden')">
       <div class="loc-dot"></div>
       <span class="loc-label">Delivering to</span>

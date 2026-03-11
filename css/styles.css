@@ -37,29 +37,33 @@ body::before {
 }
 
 /* ——— HEADER ——— */
-/* ═══ HEADER — two-row mobile-first ═══ */
+/* ═══ HEADER — 3 rows mobile, 1 row desktop ═══ */
 header {
   position: sticky; top: 0; z-index: 100;
   backdrop-filter: blur(20px);
-  background: rgba(10,10,15,0.95);
+  background: rgba(10,10,15,0.97);
   border-bottom: 1px solid var(--border);
-  padding: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* Row 1: brand + action buttons */
+/* ——— Row 1: Logo ——— */
 .header-row1 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.55rem 1rem;
-  min-height: 52px;
-  gap: 0.5rem;
+  display: flex; align-items: center;
+  padding: 0.6rem 1rem 0.4rem;
 }
-.header-brand {
+.header-brand { display: flex; align-items: center; gap: 0.45rem; }
+
+/* ——— Row 2: Saved + Report + Status ——— */
+.header-row2 {
   display: flex; align-items: center; gap: 0.5rem;
-  flex-shrink: 0;
+  padding: 0 1rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ——— Row 3: Delivery location ——— */
+.header-row3 {
+  padding: 0 1rem;
 }
 
 .logo {
@@ -73,19 +77,14 @@ header {
   letter-spacing: -0.5px;
   white-space: nowrap;
 }
-.logo-icon { font-size: 1.35rem; }
-
-.header-actions {
-  display: flex; align-items: center; gap: 0.4rem;
-  flex-wrap: nowrap;
-}
+.logo-icon { font-size: 1.3rem; }
 
 .header-btn {
   display: flex; align-items: center; gap: 0.3rem;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.38rem 0.65rem;
+  padding: 0.35rem 0.65rem;
   color: var(--muted);
   font-size: 0.78rem;
   cursor: pointer;
@@ -94,57 +93,67 @@ header {
   white-space: nowrap;
 }
 .header-btn:hover { border-color: var(--accent); color: var(--text); }
-/* Always show labels — they're short enough */
 .header-btn-label { display: inline; }
 
 .firebase-status {
   display: flex; align-items: center; gap: 0.35rem;
-  font-size: 0.72rem;
-  color: var(--muted);
-  padding: 0.38rem 0.6rem;
+  font-size: 0.72rem; color: var(--muted);
+  padding: 0.35rem 0.6rem;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
   white-space: nowrap;
+  margin-left: auto;
 }
-.status-dot {
-  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-}
-.status-dot.online      { background: var(--success); box-shadow: 0 0 6px var(--success); }
-.status-dot.offline     { background: var(--muted); }
-.status-dot.connecting  { background: var(--accent); animation: pulse 1s ease infinite; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.online     { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.status-dot.offline    { background: var(--muted); }
+.status-dot.connecting { background: var(--accent); animation: pulse 1s ease infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-/* Row 2: location bar — full width strip */
-.header-row2 {
-  border-top: 1px solid var(--border);
-  padding: 0 1rem;
-}
 
 .location-bar {
   display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.42rem 0;
-  font-size: 0.82rem;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.15s;
+  padding: 0.45rem 0;
+  font-size: 0.82rem; color: var(--muted);
+  cursor: pointer; transition: color 0.15s;
   width: 100%;
 }
 .location-bar:hover { color: var(--text); }
-.location-bar .loc-name { color: var(--accent); font-weight: 600; flex: 1; }
-.loc-label  { color: var(--muted); font-size: 0.78rem; }
-.loc-chevron { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
-.loc-dot    { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); flex-shrink: 0; }
+.loc-label   { font-size: 0.76rem; color: var(--muted); }
+.loc-name    { color: var(--accent); font-weight: 600; flex: 1; }
+.loc-chevron { font-size: 0.7rem; color: var(--muted); }
+.loc-dot     { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); flex-shrink: 0; }
 
-/* On wider screens — collapse to single row */
+/* ——— Desktop (≥ 700px): collapse to 1 row ——— */
 @media (min-width: 700px) {
-  header { flex-direction: row; align-items: center; padding: 0 1.5rem; height: 60px; }
-  .header-row1 { padding: 0; border: none; flex: 1; min-height: unset; }
-  .header-row2 { border-top: none; border-left: 1px solid var(--border); padding: 0 0 0 1rem; width: auto; }
-  .location-bar { padding: 0.42rem 0.9rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 0.8rem; width: auto; }
+  header {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 1.5rem;
+    height: 60px;
+    gap: 0.8rem;
+  }
+  .header-row1 { padding: 0; border: none; }
+  .header-row2 {
+    padding: 0; border: none;
+    margin-left: auto;
+    gap: 0.5rem;
+  }
+  .firebase-status { margin-left: 0; }
+  .header-row3 {
+    padding: 0;
+    border-left: 1px solid var(--border);
+    padding-left: 0.8rem;
+  }
+  .location-bar {
+    padding: 0.4rem 0.85rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: auto;
+  }
   .location-bar:hover { border-color: var(--accent); }
-  .loc-label { display: inline; }
-  .loc-chevron { margin-left: 0; }
+  .loc-name { flex: unset; }
 }
 
 /* ——— SIDE PANEL (Saved Baskets) ——— */

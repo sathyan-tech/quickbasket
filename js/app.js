@@ -3,13 +3,13 @@
 //  Fixed search (tags+brand+name), brand/size comparison view
 // ============================================================
 
-window.basket      = {};
-window.customItems = {};
-window.currentCity = 'Mumbai';
-window.currentLat  = null;
-window.currentLng  = null;
-let activeCategory = 'all';
-let searchQuery    = '';
+window.basket       = {};
+window.customItems  = {};
+window.currentCity  = 'Mumbai';
+window.currentLat   = null;
+window.currentLng   = null;
+window.activeCategory = 'all';
+window.searchQuery    = '';
 
 // ——— Toast ———
 window.showToast = function (msg, type = '') {
@@ -152,30 +152,30 @@ const ALIASES = {
 };
 
 window.filterCat = function (cat, el) {
-  activeCategory = cat;
+  window.activeCategory = cat;
   document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active'); renderProducts();
 };
 
 window.filterProducts = function () {
-  const raw = document.getElementById('searchInput').value.trim().toLowerCase();
-  // resolve alias only if it's an EXACT alias match, otherwise use raw
-  searchQuery = ALIASES[raw] !== undefined ? ALIASES[raw] : raw;
+  const raw = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  // Use alias if exact match exists, otherwise search raw text directly
+  window.searchQuery = (ALIASES[raw] !== undefined && ALIASES[raw] !== '') ? ALIASES[raw] : raw;
   renderProducts();
 };
 
-// FIXED: search across name + brand + all tags
+// Searches name + brand + every tag — any single matching word is enough
 function matchesSearch(p, q) {
-  if (!q) return true;
+  if (!q || q.length === 0) return true;
   const haystack = [
-    p.name,
+    p.name || '',
     p.brand || '',
     ...(p.tags || []),
     p.cat || '',
     p.unit || '',
   ].join(' ').toLowerCase();
-  // every word in query must appear somewhere
-  return q.trim().split(/\s+/).every(w => haystack.includes(w));
+  // Each word in the query must appear in the haystack
+  return q.trim().split(/\s+/).filter(Boolean).every(w => haystack.includes(w));
 }
 
 // ================================================================
@@ -183,15 +183,18 @@ function matchesSearch(p, q) {
 // ================================================================
 window.renderProducts = function () {
   const list = document.getElementById('productList');
+  if (!list) return;
+  const q   = window.searchQuery || '';
+  const cat = window.activeCategory || 'all';
   const filtered = PRODUCTS.filter(p =>
-    (activeCategory === 'all' || p.cat === activeCategory) && matchesSearch(p, searchQuery)
+    (cat === 'all' || p.cat === cat) && matchesSearch(p, q)
   );
 
   let html = '';
 
   // Custom product button always visible at top when searching
-  if (searchQuery) {
-    const rawInput = document.getElementById('searchInput').value.trim();
+  if (q) {
+    const rawInput = (document.getElementById('searchInput').value || '').trim();
     html += `<div style="background:rgba(0,229,160,0.06);border:1px dashed rgba(0,229,160,0.35);border-radius:10px;padding:0.7rem;margin-bottom:0.6rem">
       <div style="font-size:0.75rem;font-weight:600;color:var(--accent);margin-bottom:0.25rem">Can't find "${rawInput}"?</div>
       <button onclick="openCustomProductModal()" style="width:100%;padding:0.35rem;border-radius:7px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:0.76rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add Custom Product</button>
