@@ -1,6 +1,8 @@
 name: PR Check & Comment
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -23,10 +25,20 @@ jobs:
       - name: Count products
         id: count
         run: |
-          COUNT=$(grep -c "id:'" js/data.js || echo "unknown")
+          COUNT=$(grep -c "basePrice:" js/data.js || echo "unknown")
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
+      - name: Print summary
+        run: |
+          echo "### ✅ QuickBasket Check" >> $GITHUB_STEP_SUMMARY
+          echo "- app.js syntax: OK" >> $GITHUB_STEP_SUMMARY
+          echo "- data.js syntax: OK" >> $GITHUB_STEP_SUMMARY
+          echo "- firebase.js syntax: OK" >> $GITHUB_STEP_SUMMARY
+          echo "- Products in catalogue: ${{ steps.count.outputs.count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Live at: https://sathyan-tech.github.io/quickbasket" >> $GITHUB_STEP_SUMMARY
+
       - name: Post PR comment
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
