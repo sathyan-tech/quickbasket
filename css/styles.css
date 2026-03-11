@@ -37,20 +37,35 @@ body::before {
 }
 
 /* ——— HEADER ——— */
+/* ═══ HEADER — two-row mobile-first ═══ */
 header {
   position: sticky; top: 0; z-index: 100;
   backdrop-filter: blur(20px);
-  background: rgba(10,10,15,0.9);
+  background: rgba(10,10,15,0.95);
   border-bottom: 1px solid var(--border);
-  padding: 0 1.5rem;
-  display: flex; align-items: center; gap: 1rem;
-  height: 64px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Row 1: brand + action buttons */
+.header-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 1rem;
+  min-height: 52px;
+  gap: 0.5rem;
+}
+.header-brand {
+  display: flex; align-items: center; gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .logo {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -58,11 +73,11 @@ header {
   letter-spacing: -0.5px;
   white-space: nowrap;
 }
-.logo-icon { font-size: 1.5rem; }
+.logo-icon { font-size: 1.35rem; }
 
 .header-actions {
-  display: flex; align-items: center; gap: 0.6rem;
-  margin-left: auto;
+  display: flex; align-items: center; gap: 0.4rem;
+  flex-wrap: nowrap;
 }
 
 .header-btn {
@@ -70,61 +85,77 @@ header {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.4rem 0.8rem;
+  padding: 0.38rem 0.65rem;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   cursor: pointer;
   transition: all 0.15s;
   font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
 }
 .header-btn:hover { border-color: var(--accent); color: var(--text); }
-.header-btn-label { display: none; }
-@media (min-width: 900px) { .header-btn-label { display: inline; } }
+/* Always show labels — they're short enough */
+.header-btn-label { display: inline; }
 
 .firebase-status {
-  display: flex; align-items: center; gap: 0.4rem;
-  font-size: 0.75rem;
+  display: flex; align-items: center; gap: 0.35rem;
+  font-size: 0.72rem;
   color: var(--muted);
-  padding: 0.35rem 0.7rem;
+  padding: 0.38rem 0.6rem;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  cursor: default;
+  white-space: nowrap;
 }
 .status-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  flex-shrink: 0;
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
 }
-.status-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
-.status-dot.offline { background: var(--muted); }
-.status-dot.connecting { background: var(--accent); animation: pulse 1s ease infinite; }
+.status-dot.online      { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.status-dot.offline     { background: var(--muted); }
+.status-dot.connecting  { background: var(--accent); animation: pulse 1s ease infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Row 2: location bar — full width strip */
+.header-row2 {
+  border-top: 1px solid var(--border);
+  padding: 0 1rem;
+}
 
 .location-bar {
   display: flex; align-items: center; gap: 0.5rem;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.45rem 0.9rem;
+  padding: 0.42rem 0;
   font-size: 0.82rem;
   color: var(--muted);
   cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
+  transition: color 0.15s;
+  width: 100%;
 }
-.location-bar:hover { border-color: var(--accent); color: var(--text); }
-.location-bar .loc-name { color: var(--text); font-weight: 500; }
-.loc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); flex-shrink: 0; }
+.location-bar:hover { color: var(--text); }
+.location-bar .loc-name { color: var(--accent); font-weight: 600; flex: 1; }
+.loc-label  { color: var(--muted); font-size: 0.78rem; }
+.loc-chevron { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+.loc-dot    { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); flex-shrink: 0; }
+
+/* On wider screens — collapse to single row */
+@media (min-width: 700px) {
+  header { flex-direction: row; align-items: center; padding: 0 1.5rem; height: 60px; }
+  .header-row1 { padding: 0; border: none; flex: 1; min-height: unset; }
+  .header-row2 { border-top: none; border-left: 1px solid var(--border); padding: 0 0 0 1rem; width: auto; }
+  .location-bar { padding: 0.42rem 0.9rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 0.8rem; width: auto; }
+  .location-bar:hover { border-color: var(--accent); }
+  .loc-label { display: inline; }
+  .loc-chevron { margin-left: 0; }
+}
 
 /* ——— SIDE PANEL (Saved Baskets) ——— */
 .side-panel {
   position: fixed;
-  top: 64px; right: 0;
-  width: 320px;
-  height: calc(100vh - 64px);
+  top: 0; right: 0;
+  width: min(320px, 100vw);
+  height: 100vh;
   background: var(--surface);
   border-left: 1px solid var(--border);
-  z-index: 80;
+  z-index: 200;
   overflow-y: auto;
   transform: translateX(0);
   transition: transform 0.25s ease;
@@ -594,8 +625,6 @@ header {
   .comparison-area { padding: 1rem; }
   .side-panel { width: 100%; }
   .basket-bar { padding: 0.8rem 1rem; }
-  header { padding: 0 1rem; }
-  .firebase-status span:last-child { display: none; }
 }
 
 /* ——— Product group (brand/size comparison) ——— */
