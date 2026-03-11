@@ -1,0 +1,30 @@
+name: Weekly health check
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday 6am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JS syntax check
+        run: |
+          node --check js/app.js
+          node --check js/data.js
+          node --check js/firebase.js
+          echo "All files OK"
+
+      - name: Check file sizes
+        run: |
+          echo "=== File sizes ==="
+          wc -l js/app.js js/data.js js/firebase.js css/styles.css index.html
+          echo "=== Product count ==="
+          grep -c "basePrice:" js/data.js
