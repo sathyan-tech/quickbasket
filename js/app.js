@@ -202,7 +202,7 @@ window.renderProducts = function () {
   }
 
   if (!filtered.length) {
-    if (!searchQuery) html += `<div style="padding:1rem 0;text-align:center;color:var(--muted);font-size:0.8rem">No products in this category</div>`;
+    if (!q) html += `<div style="padding:1rem 0;text-align:center;color:var(--muted);font-size:0.8rem">No products in this category</div>`;
     list.innerHTML = html; return;
   }
 
@@ -518,8 +518,29 @@ function hexToRgb(hex) {
   return r ? `${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}` : '0,0,0';
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  renderProducts(); updateBasketUI();
-  const connected = await tryAutoInitFirebase();
-  if (!connected) setTimeout(() => document.getElementById('firebaseSetupModal')?.classList.remove('hidden'), 800);
+// ——— Stubs so code never crashes if firebase.js hasn't loaded yet ———
+if (!window.logComparison)        window.logComparison        = async () => {};
+if (!window.saveBasketToFirebase) window.saveBasketToFirebase = async () => showToast('Firebase loading…','');
+if (!window.loadSavedBaskets)     window.loadSavedBaskets     = async () => {};
+if (!window.tryAutoInitFirebase)  window.tryAutoInitFirebase  = async () => false;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Wire search directly in JS — belt AND suspenders alongside the oninput attribute
+  const searchEl = document.getElementById('searchInput');
+  if (searchEl) {
+    searchEl.addEventListener('input', function () {
+      const raw = this.value.trim().toLowerCase();
+      window.searchQuery = (ALIASES[raw] !== undefined && ALIASES[raw] !== '') ? ALIASES[raw] : raw;
+      window.renderProducts();
+    });
+  }
+
+  // Load firebase.js as a plain script — it self-initialises
+  const fbScript = document.createElement('script');
+  fbScript.src = 'js/firebase.js';
+  document.head.appendChild(fbScript);
+
+  // Render UI immediately
+  window.renderProducts();
+  window.updateBasketUI();
 });

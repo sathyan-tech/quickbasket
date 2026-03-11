@@ -1,68 +1,66 @@
 // ============================================================
-//  QuickBasket — firebase.js
-//  Config hardcoded — no setup prompt, works on every device
+//  QuickBasket — firebase.js  (plain script, no ES modules)
+//  Loaded dynamically by app.js after DOM ready
 // ============================================================
 
-import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore,
-         doc, getDoc, setDoc, addDoc, getDocs,
-         collection, query, where, orderBy,
-         serverTimestamp, deleteDoc }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getAnalytics }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js';
+(async function initFirebase() {
+  // Dynamically load Firebase compat SDKs
+  function loadScript(src) {
+    return new Promise((res, rej) => {
+      if (document.querySelector(`script[src="${src}"]`)) { res(); return; }
+      const s = document.createElement('script');
+      s.src = src; s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
 
-// ——— Hardcoded config — no modal needed ———
-const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyB6xiR4lpnaPP_OEXPqr5w8M8IDyUNfnhs",
-  authDomain:        "quickbasket-ac8ae.firebaseapp.com",
-  projectId:         "quickbasket-ac8ae",
-  storageBucket:     "quickbasket-ac8ae.firebasestorage.app",
-  messagingSenderId: "380670547080",
-  appId:             "1:380670547080:web:8ed43c010aff2229b0bb3d",
-  measurementId:     "G-QEZFV7NHGJ",
-};
+  try {
+    await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+    await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js');
+    await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js');
+  } catch(e) {
+    console.warn('Firebase SDK load failed:', e);
+    window.FB = { enabled: false, sessionId: crypto.randomUUID() };
+    setStatus('offline');
+    return;
+  }
 
-// ——— State ———
-window.FB = {
-  app:       null,
-  db:        null,
-  analytics: null,
-  enabled:   false,
-  sessionId: crypto.randomUUID(),
-};
+  const FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyB6xiR4lpnaPP_OEXPqr5w8M8IDyUNfnhs",
+    authDomain:        "quickbasket-ac8ae.firebaseapp.com",
+    projectId:         "quickbasket-ac8ae",
+    storageBucket:     "quickbasket-ac8ae.firebasestorage.app",
+    messagingSenderId: "380670547080",
+    appId:             "1:380670547080:web:8ed43c010aff2229b0bb3d",
+    measurementId:     "G-QEZFV7NHGJ",
+  };
 
-// ——— Auto-init on load (no user action needed) ———
-window.tryAutoInitFirebase = async function () {
+  window.FB = {
+    app: null, db: null, analytics: null,
+    enabled: false,
+    sessionId: crypto.randomUUID(),
+  };
+
   try {
     setStatus('connecting');
-    FB.app       = initializeApp(FIREBASE_CONFIG);
-    FB.db        = getFirestore(FB.app);
-    FB.analytics = getAnalytics(FB.app);
+    FB.app       = firebase.initializeApp(FIREBASE_CONFIG);
+    FB.db        = firebase.firestore();
+    FB.analytics = firebase.analytics();
     FB.enabled   = true;
     setStatus('online');
-
-    // Hide setup modal if somehow visible
-    const modal = document.getElementById('firebaseSetupModal');
-    if (modal) modal.classList.add('hidden');
-
     await seedIfEmpty();
     await loadSavedBaskets();
-    return true;
-  } catch (e) {
+  } catch(e) {
     console.error('Firebase init error:', e);
     setStatus('offline');
-    return false;
   }
-};
+})();
 
-// ——— These are kept so old references don't break ———
-window.initFirebaseFromForm = window.tryAutoInitFirebase;
-window.skipFirebase = function () {
-  const modal = document.getElementById('firebaseSetupModal');
-  if (modal) modal.classList.add('hidden');
-};
+// ——— Keep these as stubs so app.js never crashes calling them before firebase loads ———
+window.tryAutoInitFirebase  = async () => true;  // firebase.js handles its own init
+window.initFirebaseFromForm = async () => {};
+window.skipFirebase         = () => { document.getElementById('firebaseSetupModal')?.classList.add('hidden'); };
 
-// ——— Status indicator ———
 function setStatus(state) {
   const dot   = document.getElementById('statusDot');
   const label = document.getElementById('statusLabel');
@@ -71,103 +69,79 @@ function setStatus(state) {
   label.textContent = state === 'online' ? 'Live' : state === 'connecting' ? 'Connecting…' : 'Offline';
 }
 
-// ——— Seed Firestore on first run ———
 async function seedIfEmpty() {
   if (!FB.db) return;
   try {
-    const snap = await getDocs(collection(FB.db, 'products'));
+    const snap = await FB.db.collection('products').limit(1).get();
     if (!snap.empty) return;
-    console.log('First run — seeding Firestore…');
+    console.log('Seeding Firestore…');
+    const batch = FB.db.batch();
     for (const p of PRODUCTS) {
-      await setDoc(doc(FB.db, 'products', p.id), {
+      batch.set(FB.db.doc('products/' + p.id), {
         name: p.name, unit: p.unit, emoji: p.emoji,
         cat: p.cat, basePrice: p.basePrice,
-        lastUpdated: serverTimestamp(),
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
       });
     }
-    for (const a of APPS) {
-      await setDoc(doc(FB.db, 'appFees', a.id), {
-        name: a.name, color: a.color, eta: a.eta,
-        freeDeliveryAbove: a.freeDeliveryAbove,
-        priceMultiplierDefault: a.priceMultiplier.default,
-        lastUpdated: serverTimestamp(),
-      });
-    }
-    console.log('Seeding complete.');
-  } catch (e) {
-    console.warn('Seed error (Firestore rules may need update):', e);
-  }
+    await batch.commit();
+    console.log('Seeding done.');
+  } catch(e) { console.warn('Seed error:', e); }
 }
 
-// ——— Save basket ———
-window.saveBasketToFirebase = async function () {
+window.saveBasketToFirebase = async function() {
   const name  = document.getElementById('basketNameInput').value.trim();
   const items = Object.entries(window.basket).map(([id, qty]) => ({ id, qty }));
-  if (!name)          { showToast('Please enter a basket name', 'error'); return; }
-  if (!items.length)  { showToast('Basket is empty', 'error'); return; }
-
-  const data = {
-    name,
-    city:      window.currentCity,
-    items,
-    savedAt:   serverTimestamp(),
-    sessionId: FB.sessionId,
-  };
-
+  if (!name)         { showToast('Enter a basket name', 'error'); return; }
+  if (!items.length) { showToast('Basket is empty', 'error'); return; }
   try {
-    if (FB.enabled && FB.db) {
-      await addDoc(collection(FB.db, 'savedBaskets'), data);
+    if (FB.enabled) {
+      await FB.db.collection('savedBaskets').add({
+        name, city: window.currentCity, items,
+        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        sessionId: FB.sessionId,
+      });
       showToast(`💾 "${name}" saved!`, 'success');
     } else {
-      // Offline fallback
-      const local = JSON.parse(localStorage.getItem('qb_saved_baskets') || '[]');
-      local.push({ ...data, id: Date.now().toString(), savedAt: new Date().toISOString() });
-      localStorage.setItem('qb_saved_baskets', JSON.stringify(local));
+      const local = JSON.parse(localStorage.getItem('qb_saved') || '[]');
+      local.unshift({ id: Date.now()+'', name, city: window.currentCity, items, savedAt: new Date().toISOString() });
+      localStorage.setItem('qb_saved', JSON.stringify(local));
       showToast(`💾 "${name}" saved locally`, 'success');
     }
     document.getElementById('saveBasketModal').classList.add('hidden');
     document.getElementById('basketNameInput').value = '';
     await loadSavedBaskets();
-  } catch (e) {
-    console.error('Save error:', e);
-    showToast('❌ Could not save basket', 'error');
-  }
+  } catch(e) { console.error(e); showToast('❌ Save failed', 'error'); }
 };
 
-// ——— Load saved baskets ———
-window.loadSavedBaskets = async function () {
+window.loadSavedBaskets = async function() {
   let baskets = [];
   try {
-    if (FB.enabled && FB.db) {
-      const q    = query(
-        collection(FB.db, 'savedBaskets'),
-        where('sessionId', '==', FB.sessionId),
-        orderBy('savedAt', 'desc')
-      );
-      const snap = await getDocs(q);
-      baskets    = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (FB.enabled) {
+      const snap = await FB.db.collection('savedBaskets')
+        .where('sessionId', '==', FB.sessionId)
+        .orderBy('savedAt', 'desc').get();
+      baskets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } else {
-      baskets = JSON.parse(localStorage.getItem('qb_saved_baskets') || '[]').reverse();
+      baskets = JSON.parse(localStorage.getItem('qb_saved') || '[]');
     }
-  } catch (e) {
-    baskets = JSON.parse(localStorage.getItem('qb_saved_baskets') || '[]').reverse();
+  } catch(e) {
+    baskets = JSON.parse(localStorage.getItem('qb_saved') || '[]');
   }
   renderSavedBaskets(baskets);
 };
 
 function renderSavedBaskets(baskets) {
   const list = document.getElementById('savedBasketsList');
+  if (!list) return;
   if (!baskets.length) {
-    list.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:2rem 0">No saved baskets yet.<br>Build a basket and save it!</p>`;
-    return;
+    list.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:2rem 0">No saved baskets yet.</p>`; return;
   }
   list.innerHTML = baskets.map(b => {
     const date  = b.savedAt?.toDate ? b.savedAt.toDate().toLocaleDateString('en-IN') : new Date(b.savedAt).toLocaleDateString('en-IN');
     const count = b.items?.length || 0;
-    return `
-    <div class="saved-basket-item">
+    return `<div class="saved-basket-item">
       <div class="saved-basket-name">${esc(b.name)}</div>
-      <div class="saved-basket-meta">📍 ${esc(b.city)} · ${count} item${count!==1?'s':''} · ${date}</div>
+      <div class="saved-basket-meta">📍 ${esc(b.city||'')} · ${count} item${count!==1?'s':''} · ${date}</div>
       <div class="saved-basket-actions">
         <button class="saved-basket-btn" onclick="loadBasketById('${b.id}')">📂 Load</button>
         <button class="saved-basket-btn danger" onclick="deleteBasketById('${b.id}')">🗑️ Delete</button>
@@ -176,73 +150,60 @@ function renderSavedBaskets(baskets) {
   }).join('');
 }
 
-window.loadBasketById = async function (id) {
+window.loadBasketById = async function(id) {
   let data = null;
   try {
-    if (FB.enabled && FB.db) {
-      const snap = await getDoc(doc(FB.db, 'savedBaskets', id));
-      if (snap.exists()) data = snap.data();
+    if (FB.enabled) {
+      const snap = await FB.db.doc('savedBaskets/' + id).get();
+      if (snap.exists) data = snap.data();
     } else {
-      data = JSON.parse(localStorage.getItem('qb_saved_baskets') || '[]').find(b => b.id === id);
+      data = JSON.parse(localStorage.getItem('qb_saved')||'[]').find(b => b.id===id);
     }
-  } catch (e) { /* fall through */ }
-
-  if (!data) { showToast('Basket not found', 'error'); return; }
-
+  } catch(e) {}
+  if (!data) { showToast('Not found', 'error'); return; }
   window.basket = {};
-  (data.items || []).forEach(({ id: pid, qty }) => { window.basket[pid] = qty; });
+  (data.items||[]).forEach(({id:pid,qty}) => { window.basket[pid]=qty; });
   window.currentCity = data.city || window.currentCity;
   document.getElementById('locDisplay').textContent = window.currentCity;
-  updateBasketUI();
-  renderProducts();
-  toggleSavedPanel();
+  updateBasketUI(); renderProducts(); toggleSavedPanel();
   showToast(`✅ "${data.name}" loaded!`, 'success');
 };
 
-window.deleteBasketById = async function (id) {
-  if (!confirm('Delete this saved basket?')) return;
+window.deleteBasketById = async function(id) {
+  if (!confirm('Delete this basket?')) return;
   try {
-    if (FB.enabled && FB.db) {
-      await deleteDoc(doc(FB.db, 'savedBaskets', id));
-    } else {
-      const local = JSON.parse(localStorage.getItem('qb_saved_baskets') || '[]');
-      localStorage.setItem('qb_saved_baskets', JSON.stringify(local.filter(b => b.id !== id)));
+    if (FB.enabled) await FB.db.doc('savedBaskets/'+id).delete();
+    else {
+      const local = JSON.parse(localStorage.getItem('qb_saved')||'[]');
+      localStorage.setItem('qb_saved', JSON.stringify(local.filter(b=>b.id!==id)));
     }
-    showToast('🗑️ Deleted', '');
-    await loadSavedBaskets();
-  } catch (e) { showToast('❌ Could not delete', 'error'); }
+    showToast('🗑️ Deleted',''); await loadSavedBaskets();
+  } catch(e) { showToast('❌ Delete failed','error'); }
 };
 
-// ——— Price report ———
-window.submitPriceReport = async function () {
-  const appId     = document.getElementById('reportApp').value;
-  const productId = document.getElementById('reportProduct').value;
-  const price     = parseFloat(document.getElementById('reportPrice').value);
-  const city      = document.getElementById('reportCity').value.trim();
-  if (!appId || !productId || !price || !city) { showToast('Please fill all fields', 'error'); return; }
+window.submitPriceReport = async function() {
+  const appId=document.getElementById('reportApp').value;
+  const productId=document.getElementById('reportProduct').value;
+  const price=parseFloat(document.getElementById('reportPrice').value);
+  const city=document.getElementById('reportCity').value.trim();
+  if (!appId||!productId||!price||!city) { showToast('Fill all fields','error'); return; }
   try {
-    await addDoc(collection(FB.db, 'priceReports'), {
-      appId, productId, reportedPrice: price, city,
-      reportedAt: serverTimestamp(), verified: false, sessionId: FB.sessionId,
+    await FB.db.collection('priceReports').add({
+      appId, productId, reportedPrice:price, city,
+      reportedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      verified:false, sessionId:FB.sessionId,
     });
-    showToast('🚩 Price reported! Thank you.', 'success');
+    showToast('🚩 Reported! Thank you.','success');
     document.getElementById('reportModal').classList.add('hidden');
-    ['reportApp','reportProduct','reportPrice','reportCity'].forEach(f => document.getElementById(f).value = '');
-  } catch (e) { showToast('❌ Could not submit report', 'error'); }
+    ['reportApp','reportProduct','reportPrice','reportCity'].forEach(f=>document.getElementById(f).value='');
+  } catch(e) { showToast('❌ Submit failed','error'); }
 };
 
-// ——— Log comparison ———
-window.logComparison = async function (city, items, results) {
-  if (!FB.enabled || !FB.db) return;
-  try {
-    await addDoc(collection(FB.db, 'comparisons'), {
-      city, items, results, createdAt: serverTimestamp(), sessionId: FB.sessionId,
-    });
-  } catch (e) { /* silent */ }
+window.logComparison = async function(city, items, results) {
+  if (!FB.enabled||!FB.db) return;
+  try { await FB.db.collection('comparisons').add({ city, items, results, createdAt: firebase.firestore.FieldValue.serverTimestamp(), sessionId:FB.sessionId }); } catch(e){}
 };
 
-// ——— Escape HTML ———
 function esc(str) {
-  return String(str).replace(/[&<>"']/g, c =>
-    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
