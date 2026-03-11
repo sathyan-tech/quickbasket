@@ -4,32 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="QuickBasket — Compare grocery prices across Blinkit, Zepto, Instamart, BB Now & more. Find the cheapest option including all delivery fees.">
-<meta property="og:title" content="QuickBasket — Smart Quick Commerce Price Comparison">
-<meta property="og:description" content="Compare prices across all quick commerce apps including delivery fees. Build your basket and order from the cheapest app.">
-<meta property="og:type" content="website">
 <title>QuickBasket — Smart Price Comparison</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧺</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<style>
+  /* ——— Custom product modal extras ——— */
+  .emoji-row { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.8rem; }
+  .emoji-pick {
+    font-size:1.3rem; cursor:pointer; padding:0.3rem; border-radius:8px;
+    border:1px solid transparent; transition:all 0.15s;
+  }
+  .emoji-pick:hover, .emoji-pick.selected { background:var(--surface2); border-color:var(--accent); }
+
+  .custom-tag { border-color: rgba(0,229,160,0.4) !important; }
+
+  /* ——— GPS info box ——— */
+  #gpsInfo {
+    font-size:0.78rem; color:var(--muted); min-height:1.4rem;
+    margin-top:0.5rem; line-height:1.5;
+    padding:0.4rem 0.6rem; border-radius:6px;
+    background:rgba(255,255,255,0.03);
+  }
+
+  /* ——— Add custom btn in sidebar ——— */
+  .add-custom-btn {
+    width:100%; padding:0.6rem; border-radius:10px;
+    border:1px dashed rgba(0,229,160,0.4);
+    background:rgba(0,229,160,0.05);
+    color:var(--accent); font-size:0.82rem; font-weight:600;
+    cursor:pointer; font-family:'DM Sans',sans-serif;
+    transition:all 0.15s; margin-top:0.2rem;
+  }
+  .add-custom-btn:hover { background:rgba(0,229,160,0.1); border-color:var(--accent); }
+</style>
 </head>
 <body>
 
-<!-- FIREBASE CONFIG NOTICE (shown on first load) -->
+<!-- ═══════════════════════════════════════════════
+     FIREBASE SETUP MODAL
+═══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="firebaseSetupModal">
   <div class="modal" style="max-width:520px">
     <div style="font-size:2rem;margin-bottom:0.8rem">🔥</div>
     <h2>Connect Firebase</h2>
-    <p style="margin-bottom:1rem">Enter your Firebase project config to enable price sync, basket saving, and price reports. You can find this in your Firebase Console → Project Settings → Your Apps.</p>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:0.78rem;color:var(--muted);margin-bottom:1rem;font-family:monospace;line-height:1.6">
-      Firebase Console → Project Settings → General → Your Apps → Web App → Config
+    <p style="margin-bottom:1rem">Enter your Firebase project config to enable basket saving and price reports. Or skip to use offline.</p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;font-size:0.75rem;color:var(--muted);margin-bottom:1rem;font-family:monospace;line-height:1.7">
+      Firebase Console → Project Settings → General → Your Apps → Web App → SDK setup → Config
     </div>
-    <div style="display:grid;gap:0.6rem;margin-bottom:1rem">
+    <div style="display:grid;gap:0.5rem;margin-bottom:1rem">
       <input type="text" id="fb_apiKey" placeholder="apiKey" />
-      <input type="text" id="fb_authDomain" placeholder="authDomain (project.firebaseapp.com)" />
+      <input type="text" id="fb_authDomain" placeholder="authDomain  (project.firebaseapp.com)" />
       <input type="text" id="fb_projectId" placeholder="projectId" />
-      <input type="text" id="fb_storageBucket" placeholder="storageBucket (project.appspot.com)" />
+      <input type="text" id="fb_storageBucket" placeholder="storageBucket  (project.appspot.com)" />
       <input type="text" id="fb_messagingSenderId" placeholder="messagingSenderId" />
       <input type="text" id="fb_appId" placeholder="appId" />
     </div>
@@ -40,32 +69,49 @@
   </div>
 </div>
 
-<!-- LOCATION MODAL -->
+<!-- ═══════════════════════════════════════════════
+     LOCATION MODAL  (GPS + city picker)
+═══════════════════════════════════════════════ -->
 <div class="modal-overlay hidden" id="locationModal">
-  <div class="modal" style="max-width:520px">
-    <h2>📍 Set your location</h2>
-    <p>Use GPS to auto-detect, or pick a city below.</p>
+  <div class="modal" style="max-width:540px">
+    <h2>📍 Set Delivery Location</h2>
+    <p>We use your location to show relevant apps and estimate delivery fees.</p>
 
     <!-- GPS Button -->
     <button id="gpsBtn" onclick="detectLocation()" style="
-      width:100%; padding:0.75rem; border-radius:10px; margin-bottom:1rem;
-      background:linear-gradient(135deg,rgba(0,229,160,0.15),rgba(124,58,237,0.15));
-      border:1px solid var(--accent); color:var(--accent);
-      font-family:'Syne',sans-serif; font-weight:700; font-size:0.88rem;
+      width:100%; padding:0.8rem 1rem; border-radius:11px; margin-bottom:0;
+      background:linear-gradient(135deg,rgba(0,229,160,0.12),rgba(124,58,237,0.12));
+      border:1.5px solid var(--accent); color:var(--accent);
+      font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem;
       cursor:pointer; transition:all 0.2s; letter-spacing:0.02em;
-      display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+      display:flex; align-items:center; justify-content:center; gap:0.6rem;">
       📍 Use My Current Location (GPS)
     </button>
 
+    <!-- GPS status / debug info -->
+    <div id="gpsInfo"></div>
+
+    <!-- Troubleshoot hint -->
+    <details style="margin:0.6rem 0 0.8rem;font-size:0.75rem;color:var(--muted)">
+      <summary style="cursor:pointer;color:var(--muted)">GPS not working? Click to troubleshoot</summary>
+      <div style="margin-top:0.5rem;line-height:1.7;padding:0.5rem 0">
+        <strong>On iPhone/Safari:</strong> Settings → Safari → Location → Allow<br>
+        <strong>On Android/Chrome:</strong> Tap 🔒 in address bar → Permissions → Location → Allow<br>
+        <strong>On Desktop Chrome:</strong> Click 🔒 lock → Site settings → Location → Allow<br>
+        <strong>Note:</strong> GPS requires HTTPS — it works on GitHub Pages automatically.
+      </div>
+    </details>
+
     <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem">
       <div style="flex:1;height:1px;background:var(--border)"></div>
-      <span style="font-size:0.72rem;color:var(--muted)">OR TYPE / SELECT</span>
+      <span style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">OR TYPE / SELECT A CITY</span>
       <div style="flex:1;height:1px;background:var(--border)"></div>
     </div>
 
-    <input type="text" id="locationInput" placeholder="Type your area, locality or city…" />
+    <input type="text" id="locationInput" placeholder="Type your area, locality, or city…"
+      onkeydown="if(event.key==='Enter') confirmLocation()" />
 
-    <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Popular Cities</div>
+    <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin:0.6rem 0 0.4rem">Popular Cities</div>
     <div class="modal-cities" id="citiesGrid">
       <div class="modal-city" onclick="selectCity('Mumbai')">🏙️ Mumbai</div>
       <div class="modal-city" onclick="selectCity('Delhi')">🏛️ Delhi</div>
@@ -84,9 +130,68 @@
       <div class="modal-city" onclick="selectCity('Nagpur')">🍊 Nagpur</div>
       <div class="modal-city" onclick="selectCity('Coimbatore')">🏭 Coimbatore</div>
     </div>
+
     <div class="modal-btns" style="margin-top:1rem">
       <button class="btn-ghost" onclick="document.getElementById('locationModal').classList.add('hidden')">Cancel</button>
-      <button class="btn-primary" onclick="confirmLocation()">Confirm →</button>
+      <button class="btn-primary" onclick="confirmLocation()">Confirm Location →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CUSTOM PRODUCT MODAL
+═══════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="customProductModal">
+  <div class="modal" style="max-width:420px">
+    <h2>✏️ Add Custom Product</h2>
+    <p>Type any product or brand not in our list. Enter the price you see in any one app — we'll calculate the difference per app automatically.</p>
+
+    <!-- Emoji picker -->
+    <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.4rem">Pick an icon</div>
+    <div class="emoji-row" id="emojiRow">
+      <span class="emoji-pick" onclick="pickEmoji(this,'📦')">📦</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🛒')">🛒</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🍽️')">🍽️</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🧴')">🧴</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🍫')">🍫</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🥤')">🥤</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🍳')">🍳</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🧹')">🧹</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'💊')">💊</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🧸')">🧸</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🐾')">🐾</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🌿')">🌿</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🍎')">🍎</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🥛')">🥛</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🧀')">🧀</span>
+      <span class="emoji-pick" onclick="pickEmoji(this,'🌶️')">🌶️</span>
+    </div>
+    <input type="hidden" id="cp_emoji" value="📦" />
+
+    <input type="text" id="cp_name"
+      placeholder="Product name (e.g. Vim Bar 200g, Complan 500g)"
+      style="margin-bottom:0.6rem"
+      onkeydown="if(event.key==='Enter') document.getElementById('cp_price').focus()" />
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.8rem">
+      <div>
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.3rem">Your price (₹)</div>
+        <input type="number" id="cp_price" placeholder="e.g. 85" min="1"
+          onkeydown="if(event.key==='Enter') addCustomProduct()" />
+      </div>
+      <div>
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.3rem">Unit / size</div>
+        <input type="text" id="cp_unit" placeholder="e.g. 500g, 1L, 6 pcs" />
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem;font-size:0.75rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">
+      💡 <strong>How pricing works:</strong> We apply each app's typical price difference (±2–5%) to your entered price to estimate costs across all apps.
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="document.getElementById('customProductModal').classList.add('hidden')">Cancel</button>
+      <button class="btn-primary" onclick="addCustomProduct()">Add to Basket ✓</button>
     </div>
   </div>
 </div>
@@ -104,6 +209,30 @@
   </div>
 </div>
 
+<!-- REPORT PRICE MODAL -->
+<div class="modal-overlay hidden" id="reportModal">
+  <div class="modal" style="max-width:420px">
+    <h2>🚩 Report a Price</h2>
+    <p>Help others by reporting a real price you saw in an app today.</p>
+    <select id="reportApp" style="width:100%;margin-bottom:0.6rem">
+      <option value="">Select App</option>
+      <option value="blinkit">Blinkit</option>
+      <option value="zepto">Zepto</option>
+      <option value="swiggy_instamart">Instamart</option>
+      <option value="bigbasket_now">BB Now</option>
+      <option value="dunzo">Dunzo Daily</option>
+      <option value="jiomart">JioMart</option>
+    </select>
+    <select id="reportProduct" style="width:100%;margin-bottom:0.6rem"><option value="">Select Product</option></select>
+    <input type="number" id="reportPrice" placeholder="Actual price you saw (₹)" style="width:100%;margin-bottom:0.6rem" />
+    <input type="text"   id="reportCity"  placeholder="Your city" style="width:100%;margin-bottom:1rem" />
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="document.getElementById('reportModal').classList.add('hidden')">Cancel</button>
+      <button class="btn-primary" onclick="submitPriceReport()">Submit</button>
+    </div>
+  </div>
+</div>
+
 <!-- LOADING -->
 <div class="loading-overlay hidden" id="loadingOverlay">
   <div class="spinner"></div>
@@ -113,19 +242,20 @@
 <!-- TOAST -->
 <div class="toast hidden" id="toast"></div>
 
-<!-- HEADER -->
+<!-- ═══════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════ -->
 <header>
   <span class="logo-icon">🧺</span>
   <span class="logo">QuickBasket</span>
-
   <div class="header-actions">
-    <button class="header-btn" id="savedBasketsBtn" onclick="toggleSavedPanel()" title="Saved Baskets">
+    <button class="header-btn" onclick="toggleSavedPanel()" title="Saved Baskets">
       📂 <span class="header-btn-label">Saved</span>
     </button>
-    <button class="header-btn" id="reportPriceBtn" onclick="openReportModal()" title="Report a price">
+    <button class="header-btn" onclick="openReportModal()" title="Report a price">
       🚩 <span class="header-btn-label">Report Price</span>
     </button>
-    <div class="firebase-status" id="firebaseStatus" title="Firebase connection status">
+    <div class="firebase-status" id="firebaseStatus">
       <div class="status-dot offline" id="statusDot"></div>
       <span id="statusLabel">Offline</span>
     </div>
@@ -145,52 +275,43 @@
     <button onclick="toggleSavedPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem">✕</button>
   </div>
   <div id="savedBasketsList" style="padding:1rem;display:flex;flex-direction:column;gap:0.6rem">
-    <p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:2rem 0">No saved baskets yet.<br>Build a basket and save it!</p>
+    <p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:2rem 0">No saved baskets yet.</p>
   </div>
 </div>
 
-<!-- REPORT PRICE MODAL -->
-<div class="modal-overlay hidden" id="reportModal">
-  <div class="modal" style="max-width:420px">
-    <h2>🚩 Report Price Update</h2>
-    <p>Help the community by reporting real prices you see in the apps.</p>
-    <select id="reportApp" style="width:100%;margin-bottom:0.6rem">
-      <option value="">Select App</option>
-      <option value="blinkit">Blinkit</option>
-      <option value="zepto">Zepto</option>
-      <option value="swiggy_instamart">Instamart</option>
-      <option value="bigbasket_now">BB Now</option>
-      <option value="dunzo">Dunzo Daily</option>
-      <option value="jiomart">JioMart</option>
-    </select>
-    <select id="reportProduct" style="width:100%;margin-bottom:0.6rem">
-      <option value="">Select Product</option>
-    </select>
-    <input type="number" id="reportPrice" placeholder="Actual price you saw (₹)" style="width:100%;margin-bottom:0.6rem" />
-    <input type="text" id="reportCity" placeholder="Your city" style="width:100%;margin-bottom:1rem" />
-    <div class="modal-btns">
-      <button class="btn-ghost" onclick="document.getElementById('reportModal').classList.add('hidden')">Cancel</button>
-      <button class="btn-primary" onclick="submitPriceReport()">Submit Report</button>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN -->
+<!-- ═══════════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════════ -->
 <div class="main">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+
+    <!-- Search -->
     <div>
-      <div class="section-label">Search Products</div>
+      <div class="section-label">Search Any Product</div>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" placeholder="milk, aloo, sabun, chips…" id="searchInput" oninput="filterProducts()" />
+        <input type="text" id="searchInput" oninput="filterProducts()"
+          placeholder="milk, Surf Excel, dahi, chips…" />
       </div>
-      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.3rem;padding-left:0.2rem">
-        💡 Hindi names work too — dahi, anda, chai, pyaaz…
+      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.35rem">
+        💡 Hindi names too: dahi, anda, aloo, chai, sabun…
       </div>
     </div>
 
+    <!-- Add Custom Product -->
+    <div>
+      <div class="section-label">Can't find your product?</div>
+      <button class="add-custom-btn" onclick="openCustomProductModal()">
+        ✏️ Add Any Custom Product / Brand
+      </button>
+      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.3rem">
+        Add Haldiram's, Amul Taaza, Glucon-D, medicines, anything — with your own price
+      </div>
+    </div>
+
+    <!-- Categories -->
     <div>
       <div class="section-label">Category</div>
       <div class="cat-pills" id="catPills">
@@ -211,7 +332,8 @@
       </div>
     </div>
 
-    <div style="flex:1;min-height:0">
+    <!-- Product List -->
+    <div style="flex:1;min-height:0;overflow-y:auto">
       <div class="section-label">Products</div>
       <div class="product-list" id="productList"></div>
     </div>
@@ -224,10 +346,11 @@
     <div class="basket-bar">
       <span class="basket-label">🧺 My Basket</span>
       <div class="basket-tags" id="basketTags">
-        <span style="font-size:0.8rem;color:var(--muted)">Add items from the left to compare</span>
+        <span style="font-size:0.8rem;color:var(--muted)">Add items or custom products to compare</span>
       </div>
       <div style="display:flex;gap:0.6rem;margin-left:auto;flex-shrink:0">
-        <button class="save-btn hidden" id="saveBtn" onclick="document.getElementById('saveBasketModal').classList.remove('hidden')" title="Save basket">💾</button>
+        <button class="save-btn hidden" id="saveBtn"
+          onclick="document.getElementById('saveBasketModal').classList.remove('hidden')" title="Save basket">💾</button>
         <button class="clear-btn hidden" id="clearBtn" onclick="clearBasket()" title="Clear basket">🗑️</button>
         <button class="compare-btn" id="compareBtn" onclick="runComparison()" disabled>Compare Prices →</button>
       </div>
@@ -238,14 +361,35 @@
       <div class="empty-state" id="emptyState">
         <div class="big-icon">🛒</div>
         <h3>Build your basket to compare</h3>
-        <p>Add products from the sidebar and tap "Compare Prices" to see the cheapest options across all quick commerce apps — including all fees.</p>
+        <p>Search any product, browse by category, or add a custom product with your own price — then tap Compare Prices.</p>
+        <button onclick="openCustomProductModal()" style="
+          margin-top:0.5rem;padding:0.6rem 1.4rem;border-radius:10px;
+          border:1px solid var(--accent);background:rgba(0,229,160,0.08);
+          color:var(--accent);font-size:0.83rem;font-weight:600;cursor:pointer;
+          font-family:'DM Sans',sans-serif">
+          ✏️ Add Custom Product
+        </button>
       </div>
       <div id="resultsArea" style="display:none"></div>
     </div>
+
   </div>
 </div>
 
-<!-- Firebase SDKs (loaded dynamically after config) -->
+<script>
+// Emoji picker helper
+window.pickEmoji = function(el, emoji) {
+  document.querySelectorAll('.emoji-pick').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('cp_emoji').value = emoji;
+};
+// Select first emoji on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.emoji-pick')?.classList.add('selected');
+});
+</script>
+
+<!-- Firebase SDKs -->
 <script type="module" src="js/firebase.js"></script>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
