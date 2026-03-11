@@ -1,0 +1,1 @@
+{\n  "name": "quickbasket",\n  "version": "1.0.0",\n  "scripts": {\n    "test": "jest",\n    "cypress:open": "cypress open",\n    "cypress:run": "cypress run"\n  },\n  "devDependencies": {\n    "jest": "^27.0.0",\n    "cypress": "^8.0.0",\n    "@testing-library/react": "^12.0.0"\n  }\n}
