@@ -42,10 +42,30 @@
 
 <!-- LOCATION MODAL -->
 <div class="modal-overlay hidden" id="locationModal">
-  <div class="modal">
+  <div class="modal" style="max-width:520px">
     <h2>📍 Set your location</h2>
-    <p>Choose a city to see available quick commerce apps and delivery coverage in your area.</p>
-    <input type="text" id="locationInput" placeholder="Type your area or city…" />
+    <p>Use GPS to auto-detect, or pick a city below.</p>
+
+    <!-- GPS Button -->
+    <button id="gpsBtn" onclick="detectLocation()" style="
+      width:100%; padding:0.75rem; border-radius:10px; margin-bottom:1rem;
+      background:linear-gradient(135deg,rgba(0,229,160,0.15),rgba(124,58,237,0.15));
+      border:1px solid var(--accent); color:var(--accent);
+      font-family:'Syne',sans-serif; font-weight:700; font-size:0.88rem;
+      cursor:pointer; transition:all 0.2s; letter-spacing:0.02em;
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+      📍 Use My Current Location (GPS)
+    </button>
+
+    <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:0.72rem;color:var(--muted)">OR TYPE / SELECT</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <input type="text" id="locationInput" placeholder="Type your area, locality or city…" />
+
+    <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Popular Cities</div>
     <div class="modal-cities" id="citiesGrid">
       <div class="modal-city" onclick="selectCity('Mumbai')">🏙️ Mumbai</div>
       <div class="modal-city" onclick="selectCity('Delhi')">🏛️ Delhi</div>
@@ -55,10 +75,18 @@
       <div class="modal-city" onclick="selectCity('Pune')">🏔️ Pune</div>
       <div class="modal-city" onclick="selectCity('Kolkata')">🌸 Kolkata</div>
       <div class="modal-city" onclick="selectCity('Ahmedabad')">🏺 Ahmedabad</div>
+      <div class="modal-city" onclick="selectCity('Surat')">💫 Surat</div>
+      <div class="modal-city" onclick="selectCity('Jaipur')">🏯 Jaipur</div>
+      <div class="modal-city" onclick="selectCity('Lucknow')">🕌 Lucknow</div>
+      <div class="modal-city" onclick="selectCity('Kochi')">⛵ Kochi</div>
+      <div class="modal-city" onclick="selectCity('Chandigarh')">🌲 Chandigarh</div>
+      <div class="modal-city" onclick="selectCity('Indore')">🎪 Indore</div>
+      <div class="modal-city" onclick="selectCity('Nagpur')">🍊 Nagpur</div>
+      <div class="modal-city" onclick="selectCity('Coimbatore')">🏭 Coimbatore</div>
     </div>
-    <div class="modal-btns">
+    <div class="modal-btns" style="margin-top:1rem">
       <button class="btn-ghost" onclick="document.getElementById('locationModal').classList.add('hidden')">Cancel</button>
-      <button class="btn-primary" onclick="confirmLocation()">Confirm</button>
+      <button class="btn-primary" onclick="confirmLocation()">Confirm →</button>
     </div>
   </div>
 </div>
@@ -156,7 +184,10 @@
       <div class="section-label">Search Products</div>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Milk, eggs, bread…" id="searchInput" oninput="filterProducts()" />
+        <input type="text" placeholder="milk, aloo, sabun, chips…" id="searchInput" oninput="filterProducts()" />
+      </div>
+      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.3rem;padding-left:0.2rem">
+        💡 Hindi names work too — dahi, anda, chai, pyaaz…
       </div>
     </div>
 
@@ -170,8 +201,13 @@
         <div class="cat-pill" onclick="filterCat('grains',this)">🌾 Grains</div>
         <div class="cat-pill" onclick="filterCat('snacks',this)">🍿 Snacks</div>
         <div class="cat-pill" onclick="filterCat('beverages',this)">🧃 Beverages</div>
+        <div class="cat-pill" onclick="filterCat('cooking',this)">🧑‍🍳 Cooking</div>
+        <div class="cat-pill" onclick="filterCat('meat',this)">🍗 Meat</div>
+        <div class="cat-pill" onclick="filterCat('frozen',this)">🧊 Frozen</div>
         <div class="cat-pill" onclick="filterCat('personal',this)">🧴 Personal</div>
         <div class="cat-pill" onclick="filterCat('household',this)">🧹 Household</div>
+        <div class="cat-pill" onclick="filterCat('baby',this)">👶 Baby</div>
+        <div class="cat-pill" onclick="filterCat('petcare',this)">🐾 Pets</div>
       </div>
     </div>
 
