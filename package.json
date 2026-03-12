@@ -1,6 +1,6 @@
 {
   "name": "quickbasket",
   "version": "1.0.0",
-  "description":"Quick commerce price comparison app",
-  "private":true
+  "description": "Quick commerce price comparison app",
+  "private": true
 }

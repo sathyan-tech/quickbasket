@@ -4,7 +4,7 @@
 //  basePrice, tags[] — for rich search & brand comparison
 // ============================================================
 
-const PRODUCTS = [
+var PRODUCTS = [
 
   // ═══════════ DAIRY & EGGS ═══════════
   { id:'milk_amul_fc_1l',   name:'Full Cream Milk',    brand:'Amul',        unit:'1L',       emoji:'🥛', cat:'dairy',      basePrice:68,  tags:['doodh','dudh','milk','full cream','amul'] },
@@ -321,7 +321,7 @@ const PRODUCTS = [
 ];
 
 // ——— APP CONFIGURATIONS ———
-const APPS = [
+var APPS = [
   {
     id: 'blinkit', name: 'Blinkit', emoji: '⚡', color: '#F8C200', textColor: '#000',
     eta: '8–12 min', priceMultiplier: { default: 1.00 }, freeDeliveryAbove: 199,

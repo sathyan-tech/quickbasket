@@ -1,4 +1,3 @@
-Content is user-generated and unverified.
 // ============================================================
 //  QuickBasket — app.js  v6
 //  Fixes: search, location persistence, brand in comparison
